@@ -523,15 +523,24 @@ local function open(ctx_nodes)
     }
 
     table.insert(context_text, text)
-    table.insert(lno_text, build_lno_str(range[1]+1, gutter_width-1))
+
+    local line_num
+    local ctx_line_num = range[1] + 1
+    if vim.o.relativenumber then
+      local cursor_line_num = vim.fn.line(".")
+      line_num = cursor_line_num - ctx_line_num
+    else
+      line_num = ctx_line_num
+    end
+    table.insert(lno_text, build_lno_str(line_num, gutter_width-1))
   end
 
+  set_lines(gbufnr, lno_text)
   if not set_lines(ctx_bufnr, context_text) then
     -- Context didn't change, can return here
     return
   end
 
-  set_lines(gbufnr, lno_text)
 
   highlight_contexts(bufnr, ctx_bufnr, contexts)
 end
